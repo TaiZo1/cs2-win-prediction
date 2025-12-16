@@ -91,14 +91,6 @@ This project is developed as part of the Applied Mathematics curriculum at Sorbo
 
 ---
 
-## Contact
-
-Lucas Lachaume  
-M1 Applied Mathematics - Sorbonne Université  
-[lacharme.lucas@gmail.com](mailto:lacharme.lucas@gmail.com) | [LinkedIn](https://linkedin.com/in/lucaslchrm)
-
----
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
