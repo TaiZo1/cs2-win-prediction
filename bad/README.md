@@ -12,7 +12,7 @@ Analysis of professional CS2 matches using economic and tactical features extrac
 **Processing**: Extract 51 economic/tactical features per round at freeze-time  
 **Output**: Clean dataset ready for statistical analysis
 
-**Current dataset**: 19 rounds (1 match). Target: 2,500-5,000 rounds (50-100 matches).
+**Current dataset**: 1,539 rounds (71 matches) from BLAST Austin Major 2025.
 
 ---
 
