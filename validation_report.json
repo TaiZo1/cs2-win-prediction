@@ -1,0 +1,60 @@
+{
+  "total_rounds": 1539,
+  "total_matches": 71,
+  "checks": {
+    "player_count": {
+      "name": "Player count consistency",
+      "passed": true,
+      "issues": []
+    },
+    "cash_range": {
+      "name": "Cash within valid range (0-80k per team)",
+      "passed": true,
+      "issues": []
+    },
+    "awp_count": {
+      "name": "AWP count valid (0-5)",
+      "passed": true,
+      "issues": []
+    },
+    "rifle_count": {
+      "name": "Rifle count valid (0-5)",
+      "passed": true,
+      "issues": []
+    },
+    "score_progression": {
+      "name": "Score increases by 1 each round (per match)",
+      "passed": true,
+      "issues": []
+    },
+    "streak_resets": {
+      "name": "Streaks reset at side switches",
+      "passed": true,
+      "issues": []
+    },
+    "equipment_resets": {
+      "name": "Equipment saved reset at side switches",
+      "passed": true,
+      "issues": []
+    },
+    "winner_consistency": {
+      "name": "Round winner matches score increase",
+      "passed": true,
+      "issues": []
+    },
+    "pistol_round": {
+      "name": "Pistol round characteristics",
+      "passed": true,
+      "issues": []
+    }
+  },
+  "warnings": [],
+  "errors": [],
+  "summary": {
+    "total_checks": 9,
+    "passed": 9,
+    "failed": 0,
+    "warnings": 0,
+    "errors": 0
+  }
+}
