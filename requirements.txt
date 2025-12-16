@@ -1,0 +1,14 @@
+# Core data science
+pandas>=2.0.0
+numpy>=1.24.0
+
+# CS2 demo parsing
+demoparser2>=0.40.0
+awpy>=2.0.0
+
+# Jupyter
+jupyter>=1.0.0
+notebook>=7.0.0
+
+# Utils
+pathlib>=1.0.0  # Usually built-in but explicit for clarity
