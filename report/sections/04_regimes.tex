@@ -1,0 +1,80 @@
+% =============================================================================
+%  Section 4 — Analysis per regime
+% =============================================================================
+\section{Analysis per regime}
+\label{sec:regimes}
+
+\subsection{Pistol}
+\label{subsec:pistol}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{pistol_utility_winrate.png}
+\caption{Pistol win rate conditional on the total
+\texttt{utility\_value} purchased by the team, per quintile.}
+\label{fig:pistol_utility}
+\end{figure}
+
+In pistol rounds, budgets are nearly equal and tightly bounded
+(\$800/player), so very few features discriminate: all correlations
+stay below $|r| < 0.06$. The only individual lever worth exploiting
+is the \textbf{armour $\leftrightarrow$ utility} trade-off on the T
+side, where skipping kevlar (\$650) to fund utility raises the win
+rate by about 10 points (Figure~\ref{fig:pistol_utility}). The
+\textbf{map} contributes a signal of comparable amplitude
+(${\sim}8$~points between \texttt{de\_dust2} and \texttt{de\_anubis}).
+HLTV statistics remain uninformative: the historical form of a team
+does not transfer to pistol rounds, which behave almost like a coin
+flip.
+
+\subsection{Post-pistol}
+\label{subsec:postpistol}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.45\linewidth]{post_pistol_money_scatter.png}
+\caption{Post-pistol: CT \texttt{money\_total} vs T
+\texttt{money\_total}, coloured by pistol outcome. The asymmetry is
+sharp — pistol winner $\approx$ full buy, pistol loser $\approx$
+eco/force.}
+\label{fig:postpistol_money}
+\end{figure}
+
+The pistol outcome creates a structural \textbf{economic asymmetry}
+between the winning team, which full-buys, and the losing team, whose
+limited cash only allows an eco or a force-buy
+(Figure~\ref{fig:postpistol_money}). This asymmetry translates into
+\textbf{contrasted buy decisions} on the losing side: a near-systematic
+force-buy on the CT side after a lost pistol (78~\%), versus only
+48~\% on the T side. The T decision is actually conditioned by the
+\emph{plant} of the bomb in the previous round. Its effect is directly
+measurable on the force-buy profitability: without a plant the T
+force-buy wins 26~\% of the time; with a plant the $+\$600$ per
+player bonus is enough to lift it to 41~\%. This chain
+\emph{asymmetry $\rightarrow$ decision $\rightarrow$ outcome} gives
+post-pistol its exploitable signal, strongly correlated with the
+pistol outcome.
+
+\subsection{Normal}
+\label{subsec:normal}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\linewidth]{normal_delta_eco_winrate.png}
+\caption{CT win rate on normal rounds conditional on $\Delta$
+\texttt{equipment\_value} (CT $-$ T), per quintile.}
+\label{fig:normal_delta_equip}
+\end{figure}
+
+On normal rounds, all buy types coexist (eco, half-buy, force-buy,
+full-buy) and the dominant signal is the economic gap measured
+directly by $\Delta$ \texttt{equipment\_value}: its lowest quintile
+corresponds to a win rate around 24~\% and its top quintile to 77~\%
+(Figure~\ref{fig:normal_delta_equip}). At comparable economy (mutual
+full-buy with \texttt{equipment\_value} $>$ 20\,k on both sides), two
+secondary signals remain. The $\Delta$ \texttt{awp\_count} adds about
+5 points of win rate per extra AWP; the map-specific HLTV rating
+still separates teams but with a moderate amplitude (win rate
+bounded in $[47\,\%, 55\,\%]$ between extreme quintiles).
+
+% =============================================================================

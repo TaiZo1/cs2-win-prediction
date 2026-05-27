@@ -1,0 +1,115 @@
+% =============================================================================
+%  Report — Predicting the winner of a Counter-Strike 2 round
+%  5 pages maximum (main body, appendices excluded)
+%  Compile: pdflatex main.tex (x2)
+% =============================================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---- Encoding / language ----------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{float}
+\usepackage{placeins}
+
+% ---- Layout -----------------------------------------------------------------
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{parskip}
+\usepackage{setspace}
+\setstretch{1.02}
+
+% ---- Math / tables ----------------------------------------------------------
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+
+% ---- Listings (Python code, only used in the appendices) --------------------
+\usepackage{listings}
+\lstdefinestyle{pycode}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{cs2ct}\bfseries,
+  stringstyle=\color{cs2t!80!black},
+  commentstyle=\color{gray}\itshape,
+  showstringspaces=false,
+  frame=single,
+  rulecolor=\color{black!30},
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=6pt,
+}
+\lstset{style=pycode}
+
+% ---- Graphics / colors ------------------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,backgrounds}
+
+\definecolor{cs2t}{HTML}{E8A020}
+\definecolor{cs2ct}{HTML}{1E3A6E}
+
+% ---- Hyperlinks -------------------------------------------------------------
+\usepackage[colorlinks=true,linkcolor=cs2ct,citecolor=cs2ct,urlcolor=cs2t]{hyperref}
+
+% ---- Section titles ---------------------------------------------------------
+\usepackage{titlesec}
+\titleformat{\section}
+  {\color{cs2ct}\normalfont\large\bfseries}{\thesection}{0.7em}{}
+\titlespacing*{\section}{0pt}{8pt}{4pt}
+\titleformat{\subsection}
+  {\color{cs2ct!90!black}\normalfont\normalsize\bfseries}{\thesubsection}{0.6em}{}
+\titlespacing*{\subsection}{0pt}{6pt}{2pt}
+
+% ---- Compact custom title block ---------------------------------------------
+\makeatletter
+\renewcommand{\maketitle}{%
+  \begin{center}
+    {\color{cs2ct}\Large\bfseries Predicting the winner of a Counter-Strike~2 round}\\[2pt]
+    {\color{cs2ct}\normalsize Exploratory data analysis, PCA and logistic regression on a dataset of professional matches}\\[6pt]
+    {\small Lucas Lacharme \;\textbullet\; \@date}
+  \end{center}
+}
+\makeatother
+\title{}
+\author{}
+\date{\today}
+
+% =============================================================================
+\begin{document}
+% =============================================================================
+\maketitle
+
+\begin{abstract}
+\noindent\small
+Counter-Strike~2 is a 5-on-5 tactical shooter in which a team's
+economy and overall skill level largely determine the outcome of each
+round. From a dataset of \textbf{1{,}511 professional matches} and
+\textbf{${\sim}32{,}000$ rounds} (Tier~1 tournaments, 2025--2026)
+built by combining HLTV scraping with parsing of official demos, we
+study how predictable the round winner is from the game state observed
+just before the round begins (equipment, money, score, momentum).
+Three regimes (\texttt{pistol}, \texttt{post-pistol}, \texttt{normal})
+are analysed separately through correlation, PCA and logistic
+regression.
+\end{abstract}
+
+\input{sections/01_motivation}
+\input{sections/02_data_collection}
+\input{sections/03_split_pearson}
+\input{sections/04_regimes}
+\input{sections/05_acp_logreg}
+\input{sections/06_conclusion}
+
+% =============================================================================
+% Appendices — not counted in the 5-page main body
+% =============================================================================
+\bigskip\bigskip
+\appendix
+\input{sections/annex_cs2}
+
+\end{document}

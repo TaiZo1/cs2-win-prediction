@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# === Project-specific ===
+
+# Data is not committed: regenerated via the scraping + parsing + cleaning pipeline.
+data/
+
+# Generated PowerPoint or other large binaries
+*.pptx
+
+# Compiled LaTeX artefacts (only main.tex and sections/ are tracked)
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.synctex.gz
+report/*.fls
+report/*.fdb_latexmk
+report/main.pdf
+
+# Logs
+*.log

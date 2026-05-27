@@ -1,0 +1,97 @@
+% =============================================================================
+%  Section 2 — Data collection
+% =============================================================================
+\section{Data collection}
+\label{sec:data}
+
+No public source provides, for CS2, a round-level dataset aligned with
+HLTV team statistics. We therefore build it by combining two streams:
+the \emph{demos} (official replays downloaded from HLTV) from which we
+extract, \textbf{round by round}, information about the game state at
+the start of the round (equipment, money, weapon and utility counts,
+etc.), and the \emph{team statistics} scraped from HLTV.org (rating,
+ADR, round-win~\%, flash-assists, etc., broken down by map, side,
+time window 30\,d/90\,d/6\,months and opponent tier). Figure
+\ref{fig:pipeline} summarises the pipeline; the technical details
+(snapshot tick, cleaning steps, NaN handling) are reported in
+appendices A to C.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\scriptsize,
+  >={Latex[length=1.6mm]},
+  code/.style={draw=cs2ct!70, fill=cs2ct!5, rounded corners=2pt,
+               minimum height=5mm, minimum width=28mm, align=center,
+               inner sep=1.5pt},
+  data/.style={draw=cs2t!70, fill=cs2t!10, rounded corners=2pt,
+               minimum height=5mm, minimum width=28mm, align=center,
+               inner sep=1.5pt},
+  final/.style={draw=cs2ct, fill=cs2ct!15, rounded corners=2pt,
+                thick, minimum height=5mm, minimum width=22mm, align=center,
+                inner sep=1.5pt},
+  arr/.style={->, thick, cs2ct!70, shorten >=1pt, shorten <=1pt},
+]
+\node[data] (hltv)    at ( 0,    0)    {\textbf{HLTV.org}};
+\node[code] (scrap)   at (-3.6, -0.9)  {\texttt{scraper.py}};
+\node[code] (parser)  at ( 3.6, -0.9)  {\texttt{parser.py}};
+\node[data] (stats)   at (-3.6, -1.8)  {HLTV stats};
+\node[data] (parsed)  at ( 3.6, -1.8)  {\texttt{parsed/*.csv}};
+\node[code] (clean)   at ( 3.6, -2.7)  {\texttt{clean\_rounds.py}};
+\node[data] (raw)     at ( 3.6, -3.6)  {\texttt{df\_rounds\_raw}};
+\node[code] (merger)  at ( 0,   -4.5)  {\texttt{merger.py}};
+\node[final] (pistol) at (-3.6, -5.4)  {\texttt{df\_pistol}};
+\node[final] (postp)  at ( 0,   -5.4)  {\texttt{df\_post\_pistol}};
+\node[final] (normal) at ( 3.6, -5.4)  {\texttt{df\_normal}};
+\draw[arr] (hltv)  -- (scrap);
+\draw[arr] (scrap) -- (stats);
+\draw[arr] (hltv)  -- (parser);
+\draw[arr] (parser) -- (parsed);
+\draw[arr] (parsed) -- (clean);
+\draw[arr] (clean)  -- (raw);
+\draw[arr] (stats) -- (merger.north west);
+\draw[arr] (raw)   -- (merger.north east);
+\draw[arr] (merger) -| (pistol);
+\draw[arr] (merger) -- (postp);
+\draw[arr] (merger) -| (normal);
+\end{tikzpicture}
+\caption{Data collection pipeline.}
+\label{fig:pipeline}
+\end{figure}
+
+\vspace{-0.6em}
+
+\paragraph{Variables produced.}
+Table~\ref{tab:features} groups the variables available after the
+join by family: \emph{demo} variables are duplicated per side
+(\texttt{ct\_*}, \texttt{t\_*}) and \emph{HLTV} statistics provide
+18 to 24 indicators per team depending on the split. The target is
+\texttt{round\_winner} ($1$ if CT wins, $0$ otherwise).
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{@{}lp{10.5cm}@{}}
+\toprule
+\textbf{Family} & \textbf{Main variables} \\
+\midrule
+Economy     & \texttt{money\_total}, \texttt{cash}, \texttt{equipment\_value},
+              \texttt{utility\_value}, \texttt{loss\_count} \\
+Weapons     & \texttt{awp\_count}, \texttt{rifle\_count}, \texttt{smg\_count},
+              \texttt{heavy\_count}, \texttt{ak\_count} (T) \\
+Armour      & \texttt{armor\_count}, \texttt{helmet\_count},
+              \texttt{defuser\_count} (CT) \\
+Utility     & \texttt{smoke\_count}, \texttt{flash\_count},
+              \texttt{he\_count}, \texttt{molo\_count} \\
+Context     & \texttt{round\_number}, \texttt{score},
+              \texttt{survivors\_previous}, \texttt{previous\_bomb\_planted} \\
+Momentum    & \texttt{rounds\_won\_streak}, \texttt{rounds\_lost\_streak} \\
+HLTV stats  & rating, ADR, round-win\,\%, flash-assists, etc., broken
+              down by map, side, time window and opponent tier \\
+Identifiers & \texttt{match\_file}, \texttt{map\_name}, \texttt{match\_date},
+              \texttt{round\_winner} (target) \\
+\bottomrule
+\end{tabular}
+\caption{Variable families after the join.}
+\label{tab:features}
+\end{table}

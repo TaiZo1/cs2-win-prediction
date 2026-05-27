@@ -1,0 +1,355 @@
+% =============================================================================
+%  Appendices
+%  A. Counter-Strike 2: rules and economy
+%  B. Demo parsing
+%  C. HLTV scraping
+% =============================================================================
+
+% =============================================================================
+\section{Counter-Strike~2: rules and economy}
+\label{annex:cs2}
+
+\subsection{Match format}
+
+The competitive mode studied in this project is \emph{Bomb Defusal
+Competitive}. A match pits two five-player teams in \textbf{MR12}
+format: the 24 regulation rounds are split into two halves of 12
+rounds, and the first team to reach \textbf{13 round wins} takes the
+match. On a 12-12 tie a 6-round \emph{overtime} is played.
+
+Teams swap sides at half-time (R13) and every three rounds during
+overtime. Each round starts with a 15-second \emph{freeze-time} during
+which players can buy equipment but cannot move. The action phase then
+runs for a maximum of \textbf{1 minute 55 seconds}. Buys remain
+allowed for about 20 extra seconds as long as the player stays in
+their buy zone, so the total buy window lasts about 35 seconds.
+
+\subsection{Round objectives}
+
+The \textcolor{cs2ct}{\textbf{Counter-Terrorists}} win the round by:
+\begin{itemize}
+  \item letting the round timer run out without the bomb being
+    planted;
+  \item defusing the bomb after it has been planted (10 seconds
+    without a \emph{defuse kit}, 5 seconds with);
+  \item eliminating all Terrorists \emph{before} the bomb is planted.
+\end{itemize}
+
+The \textcolor{cs2t}{\textbf{Terrorists}} win the round by:
+\begin{itemize}
+  \item planting the bomb on either site and letting the fuse run out
+    (\textbf{40-second} fuse);
+  \item eliminating all Counter-Terrorists.
+\end{itemize}
+
+If the bomb is planted, the usual rule "eliminate the whole enemy
+team" no longer applies to CT: even after killing all five
+Terrorists they still have to defuse the bomb to win the round.
+
+\subsection{Economy system}
+\label{annex:economy}
+
+The CS2 economy fully structures strategic decisions. Each player has
+a personal account that they top up round after round and spend at
+the start of each round. Money is never lost on death or defeat; it
+only decreases on a purchase. The cap is \$16{,}000 per player.
+
+\paragraph{Equipment categories and prices (CS2 Competitive).}
+Table~\ref{tab:prices} summarises the main equipment prices, as
+implemented in the parser.
+
+\begin{table}[!htbp]
+\centering
+\footnotesize
+\begin{tabular}{@{}ll r l@{}}
+\toprule
+\textbf{Category} & \textbf{Weapon / item} & \textbf{Price} & \textbf{Notes} \\
+\midrule
+Defensive equipment & Kevlar               & \$650  & Armour only \\
+                    & Kevlar + Helmet      & \$1{,}000 & Only the helmet blocks one-tap HS by a pistol \\
+                    & Defuse Kit           & \$400  & CT only, defuse 10\,s\,$\to$\,5\,s \\
+                    & Zeus x27             & \$200  & Taser, guaranteed kill at contact \\
+\midrule
+Starting pistols    & Glock-18 (T) / USP-S, P2000 (CT) & 0 & Given at the start of every round \\
+Pistols             & Dual Berettas, P250  & \$300  & \\
+                    & Tec-9 (T), Five-SeveN (CT), CZ75 & \$500 & \\
+                    & R8 Revolver          & \$600  & \\
+                    & Desert Eagle         & \$700  & One-tap HS at any range \\
+\midrule
+SMGs                & MAC-10 (T), MP9 (CT) & \$1{,}050 / \$1{,}250 & \\
+                    & MP7, MP5-SD          & \$1{,}400 & \\
+                    & UMP-45               & \$1{,}200 & \\
+                    & P90                  & \$2{,}350 & \$300/kill (instead of \$600) \\
+                    & PP-Bizon             & \$1{,}400 & \\
+\midrule
+Rifles              & Galil (T) / FAMAS (CT) & \$1{,}800 / \$1{,}950 & \\
+                    & AK-47 (T)            & \$2{,}700 & One-tap HS with or without helmet \\
+                    & M4A4 / M4A1-S (CT)   & \$2{,}900 & No one-tap HS with helmet \\
+                    & AUG (CT) / SG~553 (T) & \$3{,}300 / \$3{,}000 & Scoped \\
+\midrule
+Snipers             & SSG~08 (scout)       & \$1{,}700 & \\
+                    & AWP                  & \$4{,}750 & Guaranteed kill in one shot (upper body) \\
+\midrule
+Grenades            & Smoke                & \$300  & \\
+                    & Flashbang            & \$200  & Max 2 per player \\
+                    & HE Grenade           & \$300  & \\
+                    & Molotov (T)          & \$400  & \\
+                    & Incendiary (CT)      & \$500  & \\
+                    & Decoy                & \$50   & Mimics gunfire \\
+\bottomrule
+\end{tabular}
+\caption{Main equipment prices in CS2 Competitive.}
+\label{tab:prices}
+\end{table}
+\FloatBarrier
+
+\paragraph{Kill rewards.}
+Killing an opponent pays an amount that depends on the weapon used:
+\$300 for a pistol or rifle, \$100 for an AWP (overpowered weapon, so
+nerfed reward), \$600 for an SMG (except P90 at \$300, same logic),
+\$900 for a shotgun (except XM1014 at \$600), \$1{,}500 for a knife,
+\$300 for a grenade. \textbf{CT specifics}: a CT killing a T receives
+an extra \$50, regardless of the weapon or time in the round. This
+\$50-per-kill bonus gives CT a slight structural economic edge.
+
+\paragraph{Round-win rewards.}
+Each player on the winning team receives:
+\begin{itemize}
+  \item \textbf{\$3{,}250} for a win by elimination or by
+    \emph{time-out} (CT);
+  \item \textbf{\$3{,}500} for a win by detonation (T) or defuse (CT).
+    Bomb-based wins thus pay \$250 more than the other modes.
+\end{itemize}
+On top of that, \$300 personal goes to the player who plants or
+defuses the bomb.
+
+\paragraph{Loss bonus and \emph{loss count}.}
+A team that loses a round receives compensation that depends on a
+team-wide counter called \emph{loss count}:
+\begin{itemize}
+  \item the counter starts at 1 at the start of each half;
+  \item it is updated \emph{after} the round: $+1$ on a loss,
+    \emph{reset to 1} on a win, capped at 4;
+  \item it is also reset to 1 at half-time and at every side switch
+    during overtime.
+\end{itemize}
+The bonus schedule is: loss count 0 $\to$ \$1{,}400, 1 $\to$
+\$1{,}900, 2 $\to$ \$2{,}400, 3 $\to$ \$2{,}900, 4 $\to$ \$3{,}400.
+The first loss of a half thus pays \$1{,}900 per player.
+
+\paragraph{Plant bonus on a defeat.}
+If the Terrorists \emph{plant} the bomb but still lose the round by
+defuse, every Terrorist receives an extra \$600 on top of the loss
+bonus.
+
+\paragraph{Time-out edge case.}
+If the Terrorists lose because the round timer ran out without a
+plant, the surviving Terrorists receive nothing.
+
+\paragraph{Buy types.}
+Without a formal definition, four economic regimes are usually
+distinguished:
+\begin{itemize}
+  \item \textbf{eco}: nothing is bought, or only a pistol;
+  \item \textbf{half-buy}: just enough is bought to leave room for a
+    \emph{full-buy} on the next round;
+  \item \textbf{force-buy}: everything is spent without reaching a
+    \emph{full-buy}, at the cost of not being able to buy on the
+    next round;
+  \item \textbf{full-buy}: everything needed is purchased (rifle,
+    armour, utility).
+\end{itemize}
+
+CT players on a \emph{full-buy} do not always buy the helmet,
+especially against a T \emph{full-buy}: a helmet does not help against
+an AK.
+
+% =============================================================================
+\section{Demo parsing}
+\label{annex:parsing}
+
+\subsection{Demos and libraries}
+
+A demo is a complete recording of a match: player positions,
+inventory, money, hit points, and the history of every action
+(shots, damage, purchases, grenades thrown, plants, defuses). One
+can jump to any point in time and inspect the game state.
+
+HLTV hosts, for every tournament match, a ZIP archive containing
+the demos of the maps played, automatically downloaded by our
+scraper. Two Python libraries are used together to read them:
+\begin{itemize}
+  \item \texttt{demoparser2}: low-level parser giving raw access to
+    the game state at chosen ticks (\texttt{parse\_ticks}) or to the
+    list of individual events (\texttt{parse\_event}).
+  \item \texttt{awpy}: higher-level Python parser, built on top of
+    \texttt{demoparser2}, that directly exposes useful tables
+    (\texttt{rounds}, \texttt{grenades}, \texttt{bomb}, map header,
+    etc.) after a single \texttt{parse()} call.
+\end{itemize}
+
+For example, to retrieve the \texttt{equipment\_value} at
+\emph{freeze-time} of every round:
+
+\begin{lstlisting}
+from demoparser2 import DemoParser
+parser = DemoParser("path/to/demo.dem")
+wanted_ticks = parser.parse_event("round_freeze_end")["tick"].tolist()
+df = parser.parse_ticks(
+    ["current_equip_value", "total_rounds_played"],
+    ticks=wanted_ticks,
+)
+\end{lstlisting}
+
+\subsection{Snapshot tick}
+\label{annex:snapshot}
+
+For every round we capture a \emph{snapshot} of the game state at a
+specific tick. Taking it at \texttt{round\_start} would be too early:
+no purchase has been made yet. Taking it exactly at
+\texttt{freeze\_end} is not enough either, because the buy phase
+(35\,s) extends beyond the freeze-time (15\,s): a player can still
+buy for about 20 extra seconds as long as they stay in the buy zone.
+A player can also pick up a weapon dropped by a teammate right after
+movement is unlocked. The chosen compromise shifts the snapshot by
+two seconds:
+\[
+\texttt{snapshot\_tick} = \texttt{freeze\_end\_tick} + 2\,\text{s} \times 128\,\text{ticks/s}
+\]
+This window leaves enough time for late transactions to settle but
+remains too short for any duel to have happened: all ten players are
+still alive, which guarantees a coherent snapshot.
+
+\subsection{The "insta-smoke" problem and grenade counting}
+
+The 2-second offset of the snapshot
+($\texttt{freeze\_end} + 2\,\text{s}$) creates a problem for grenade
+counting. During the freeze-time, players can only buy: they cannot
+throw anything. But as soon as the freeze ends, they can immediately
+execute "insta-smokes": timed smokes thrown in the first second of
+the round to cover a spawn exit or block an angle. By
+\texttt{snapshot\_tick}, those grenades are no longer in the player's
+inventory. A naive read of the inventory would systematically
+under-estimate the utility of teams that rely on fast executions.
+
+The fix combines two sources of information: the inventory at
+\texttt{snapshot\_tick} and the \texttt{awpy.grenades} table filtered
+over the interval
+$[\texttt{freeze\_end},\,\texttt{snapshot\_tick}]$, which lists every
+grenade thrown in that two-second window. A second issue then
+appears: \texttt{demoparser2} removes thrown grenades from the
+inventory with a slight delay ($\sim 0.1$\,s), so the same grenade
+can momentarily appear both in the inventory and in the throw table.
+We therefore cap the per-player total by the maximum quantities
+buyable in one round: one smoke, one molo, one HE, two flashes.
+
+\begin{lstlisting}
+def count_items(snapshot_data, grenade_df, item):
+    items = {item} if isinstance(item, str) else set(item)
+    max_per_player = 2 if "Flashbang" in items else 1
+    thrown_by_player = (grenade_df[grenade_df["grenade_type"].isin(items)]
+                        .groupby("thrower").size())
+    total = 0
+    for _, player in snapshot_data.iterrows():
+        inv_count = sum(1 for x in player["inventory"] if x in items)
+        player_thrown = thrown_by_player.get(player["name"], 0)
+        total += min(inv_count + player_thrown, max_per_player)
+    return int(total)
+\end{lstlisting}
+
+\subsection{Quality fixes applied}
+\label{annex:parsing_corrections}
+
+The \texttt{clean\_rounds.py} script concatenates all per-map CSVs
+produced by the parser, applies the fixes described below, and
+produces \texttt{df\_rounds\_raw.csv}.
+
+\paragraph{Corrupted demos.} Four demos are structurally corrupted at
+the source on HLTV (the parser either fails silently or produces
+inconsistent scores). They are removed before any processing:
+\emph{mouz vs liquid inferno}, \emph{mouz vs furia mirage},
+\emph{parivision vs astralis dust2}, \emph{mouz vs parivision dust2}.
+
+\paragraph{Phantom rounds.} Some demos start with an artificial
+"round 0" caused by a \emph{warmup}, a knife round, or a
+disconnection/reforfeit. Those phantom rounds shift every subsequent
+\texttt{round\_number}. For each match we locate the real R1 as the
+first row whose "pistol shape" is satisfied — both teams'
+\texttt{money\_total} in $[\$4{,}600,\, \$6{,}500]$, a deliberately
+wide range to accommodate the \textit{fissure-playground-2} case
+described below. Preceding rows are dropped, and the same logic is
+applied to find R13 at expected position 12. The
+\texttt{round\_number} are then renumbered from 1 to~$n$.
+
+\paragraph{Snapshot drift in \textit{fissure-playground-2}.} An
+entire tournament, \textit{fissure-playground-2}, produces demos in
+which the recording does not start exactly at round 1 but about ten
+seconds later: the \texttt{freeze\_end} is missed and the
+\texttt{start\_tick} falls in the middle of the round. The
+\texttt{money\_total} of both sides is then no longer exactly
+\$5{,}000 but drifts in a small range (e.g. 4800-4800, 5400-5300).
+This is precisely why the "pistol shape" is defined loosely as
+$[\$4{,}600,\, \$6{,}500]$ rather than strictly \$5{,}000. The 92
+affected rounds are kept.
+
+\paragraph{4v5 pistols.} Another pathological case occurs when a
+player is missing on one side at pistol time (technical absence,
+\emph{kick}): $4 \times \$800 = \$3{,}200$ cash plus
+$4 \times \$200 = \$800$ pistols, i.e. exactly \$4{,}000 on one side.
+This is not a real playable round (5 vs 4 skews the outcome
+drastically). It is detected by \texttt{money\_total~==~\$4{,}000} at
+R1 or R13 and dropped: 16 rounds concerned (9 R1, 7 R13).
+
+% =============================================================================
+\section{HLTV scraping}
+\label{annex:scraping}
+
+For each target tournament, the scraper visits three types of pages:
+\begin{itemize}
+  \item the \emph{event page} to extract the tournament name, dates,
+    map pool and list of matches;
+  \item the \emph{match result page} for the official scores and the
+    demo download link;
+  \item the \emph{team statistics page} of each team.
+\end{itemize}
+
+Team statistics are scraped along several dimensions: by \textbf{map}
+(Mirage, Inferno, Dust2\dots, or \emph{global} all-maps), by
+\textbf{side} (CT, T, both), by \textbf{time window} (30\,d, 90\,d,
+6 months) and by \textbf{opponent tier} (Top~5, Top~10, Top~20,
+Top~30, Top~50). From those we extract the main indicators: rating,
+ADR, round-win~\%, flash-assists, pistol-win~\%, etc.
+
+\paragraph{"Top" propagation rule.}
+HLTV does not always publish every combination: a team outside the
+Top~30 may not have any "vs Top~5" statistics. To limit the holes
+we apply a downward propagation rule: Top~5 data fills Top~10, which
+fills Top~20, and so on down to Top~50. The propagation never goes
+the other way: if Top~5 is empty, we do not fill it with Top~20 data,
+which would paint a falsely optimistic picture.
+
+\paragraph{HLTV NaN handling.}
+Not every \texttt{(team, map, side, window, top)} combination is
+available on HLTV. We fill the resulting NaN with three successive
+fallbacks (Table~\ref{tab:nan_fill}). These choices are arbitrary:
+we could just as well have replaced every NaN with a single neutral
+value (e.g. 1.00 for the rating).
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}p{3.2cm}p{6.5cm}rr@{}}
+\toprule
+\textbf{Step} & \textbf{Mechanism} & \textbf{NaN filled} & \textbf{Remaining} \\
+\midrule
+Initial               & Empty cells after the join                       & ---       & 204{,}000 (13.5~\%) \\
+1.~\texttt{map $\to$ global} & All-maps stat when the map-specific is missing & $-$106{,}000 & 98{,}000 \\
+2.~cross-window       & 30\,d $\to$ 90\,d $\to$ 6\,months if empty       & $-$33{,}000  & 65{,}000 \\
+3.~expanding median   & Median per column over past values               & $-$65{,}000  & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Progressive HLTV NaN filling.}
+\label{tab:nan_fill}
+\end{table}
+
+% =============================================================================

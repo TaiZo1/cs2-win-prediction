@@ -1,0 +1,97 @@
+% =============================================================================
+%  Section 5 — PCA + Logistic Regression
+% =============================================================================
+\section{Principal Component Analysis}
+\label{sec:acp}
+
+PCA is applied separately to the three splits, on the CT~$-$~T
+\emph{deltas} of the economic and HLTV features, after standard
+scaling (\texttt{StandardScaler}). We pick \texttt{StandardScaler}
+over a robust variant because the upstream cleaning steps (corrupted
+demos, phantom rounds, 4v5 pistols) have already removed the
+structural outliers. The aim is to test whether an effective
+dimensionality reduction is possible before the regression.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lc}
+\toprule
+\textbf{Regime} & \textbf{Axes for 80\,\% inertia / initial features} \\
+\midrule
+\texttt{pistol}      & 12 / 70  \\
+\texttt{post-pistol} & 12 / 105 \\
+\texttt{normal}      & 10 / 106 \\
+\bottomrule
+\end{tabular}
+\caption{PCA summary by regime.}
+\label{tab:pca_summary}
+\end{table}
+
+None of the three regimes lends itself to a useful reduction: 10 to
+12 axes are needed to capture 80\,\% of cumulative inertia, i.e. about
+15\,\% of the initial features. We therefore keep the full feature set
+for the logistic regression.
+
+% =============================================================================
+\section{Logistic regression}
+\label{sec:logreg}
+
+For each regime, we model the probability that CT win the round
+through a logistic regression:
+\[
+P(Y=1 \mid X = x) \;=\; \sigma\!\left(\alpha + \beta^{\!\top} x\right),
+\qquad \sigma(t) = \frac{1}{1+e^{-t}},
+\]
+where $Y = 1$ indicates a CT win. The train/test split is
+\textbf{temporal and grouped by match}: matches are sorted by
+\texttt{match\_date} and the most recent 20\,\% form the test set
+(80/20). This scheme preserves match integrity (no round from the
+same match is split between train and test) and reproduces the
+conditions of a real prediction setup (past $\rightarrow$ future).
+Features are standardised on the training set only. We compare a
+baseline (majority class) to four nested feature configurations:
+\textbf{A} (round-state only), \textbf{B} = A + HLTV,
+\textbf{C} = B + map (one-hot), and a case \textbf{D} that adds
+quasi-target variables (\texttt{rw\_pct}, \texttt{pistol\_win\_pct},
+round-2 indicators) in order to measure the effect of including
+variables that already partly encode the target. We report
+\textbf{accuracy} and \textbf{AUC} on the test set.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{lccc}
+\toprule
+\textbf{AUC} \scriptsize{(accuracy in parentheses)} & \textbf{Pistol} & \textbf{Normal} & \textbf{Post-pistol} \\
+\midrule
+Baseline (majority class)     & 0.50~\scriptsize{(.50)} & 0.50~\scriptsize{(.51)} & 0.50~\scriptsize{(.53)} \\
+A — round-state               & \textbf{0.54}~\scriptsize{(.54)} & \textbf{0.70}~\scriptsize{(.63)} & \textbf{0.86}~\scriptsize{(.78)} \\
+B — A + HLTV                  & \textbf{0.55}~\scriptsize{(.54)} & \textbf{0.71}~\scriptsize{(.64)} & \textbf{0.85}~\scriptsize{(.76)} \\
+C — A + HLTV + map            & \textbf{0.56}~\scriptsize{(.51)} & \textbf{0.71}~\scriptsize{(.64)} & \textbf{0.85}~\scriptsize{(.76)} \\
+D — + quasi-target features   & \textit{0.56}~\scriptsize{(.54)} & \textit{0.71}~\scriptsize{(.64)} & \textit{0.85}~\scriptsize{(.76)} \\
+\bottomrule
+\end{tabular}
+\caption{AUC and accuracy on the test set, by regime and feature
+configuration.}
+\label{tab:logreg}
+\end{table}
+
+Three levels of predictability emerge:
+\[
+\text{pistol}\;\text{AUC}\!\approx\!0.56 \;<\;
+\text{normal}\;\text{AUC}\!\approx\!0.71 \;<\;
+\text{post-pistol}\;\text{AUC}\!\approx\!0.86.
+\]
+The pistol regime stays barely above chance, in line with the absence
+of a strong individual signal observed in
+Section~\ref{sec:split_pearson}. On the other two regimes, the
+\emph{round state} alone (case A) already captures most of the
+predictive power. The HLTV, map and even quasi-target additions
+\textbf{add little} (at most $+0.01$ AUC on the normal and post-pistol
+regimes): the carrying signal is concentrated in the immediate
+economic and material state, and the global team indicators only
+complement it marginally.
+
+% =============================================================================

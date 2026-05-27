@@ -1,0 +1,31 @@
+% =============================================================================
+%  Section 6 — Conclusion and outlook
+% =============================================================================
+\section{Conclusion and outlook}
+\label{sec:conclusion}
+
+This study first shows that not all rounds are equally easy to
+predict. In pistol rounds, the tightly bounded economy on both sides
+makes the outcome largely random (AUC~$\approx 0.56$). In post-pistol
+rounds, on the contrary, the asymmetry created by the previous round
+allows an almost deterministic prediction (AUC~$\approx 0.86$). The
+normal regime sits in between (AUC~$\approx 0.71$). Within each
+regime, the immediate state of the round — equipment, money, weapons,
+utility — carries most of the predictive signal. Global team
+statistics (HLTV rating, recent form) and the map effect add little
+in comparison: they act as secondary levers that improve models only
+marginally.
+
+\paragraph{Outlook.}
+Three natural directions extend this work:
+\begin{itemize}
+  \item \emph{Models}: tuning the logistic regression penalty
+    ($\ell_1$, $\ell_2$, ElasticNet), non-linear models (XGBoost).
+  \item \emph{Features}: enriching the dataset with individual player
+    statistics, matchups, per-player form.
+  \item \emph{Vision}: integrating \emph{live} signals (player
+    positions, utilities thrown, strategy currently in use) for
+    real-time prediction.
+\end{itemize}
+
+% =============================================================================

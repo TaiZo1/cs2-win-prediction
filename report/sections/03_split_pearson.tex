@@ -1,0 +1,75 @@
+% =============================================================================
+%  Section 3 — Three round regimes + Pearson correlations
+% =============================================================================
+\section{Three round regimes}
+\label{sec:split_pearson}
+
+CS2 rounds are not equivalent. \textbf{Pistol rounds} (R1, R13) start
+from an economy reset to \$800 per player: money and weapon variables
+are nearly constant. \textbf{Post-pistol rounds} (R2, R14) display a
+structural economic asymmetry caused by the pistol outcome (winner on
+a \emph{full-buy}, loser on \emph{eco/force-buy}). \textbf{Normal
+rounds} cover the rest of the game, where each team freely chooses
+its buy depending on accumulated cash, and where all buy types (eco,
+half-buy, force-buy, full-buy) coexist. Training a single model on
+these three regimes would mix three very different distributions; we
+therefore separate the dataset into three splits at join time
+(Table~\ref{tab:splits}). All subsequent analysis (correlations, PCA,
+regression) is carried out separately on each split.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Split} & \textbf{Rounds} & \textbf{Columns} & \textbf{CT win rate} \\
+\midrule
+\texttt{df\_pistol}       & $2{,}945$  & 70  & 50.5~\% \\
+\texttt{df\_post\_pistol} & $2{,}956$  & 105 & 52.3~\% \\
+\texttt{df\_normal}       & $26{,}322$ & 106 & 51.1~\% \\
+\bottomrule
+\end{tabular}
+\caption{Final partition of rounds.}
+\label{tab:splits}
+\end{table}
+
+\subsection{Pearson correlations with \texttt{round\_winner}}
+\label{subsec:pearson}
+
+Our target is \texttt{round\_winner}, coded $Y = 1$ if CT wins the
+round and $Y = 0$ otherwise. To quickly assess the strength of the
+linear link between each feature $X$ and $Y$, we use the Pearson
+correlation coefficient, bounded in $[-1, +1]$:
+\[
+r_{X,Y} = \frac{\operatorname{cov}(X,Y)}{\sigma_X\,\sigma_Y}
+        = \frac{\sum_{i=1}^{n}(x_i-\bar x)(y_i-\bar y)}
+               {\sqrt{\sum_{i=1}^{n}(x_i-\bar x)^2}\,\sqrt{\sum_{i=1}^{n}(y_i-\bar y)^2}}.
+\]
+For each round we form the \emph{deltas}
+$\Delta X = X^{\text{CT}} - X^{\text{T}}$ of the economic and HLTV
+features, and we compute $r$ between each $\Delta X$ and $Y$ on each
+of the three splits (Figure~\ref{fig:correlations}).
+
+Profiles are very contrasted. In \textbf{pistol} rounds all
+correlations stay below $|r| < 0.06$: no individual feature
+discriminates strongly. In \textbf{post-pistol} rounds the economic
+deltas (\texttt{equipment\_value}, \texttt{money\_total},
+\texttt{utility\_value}, weapon counts) reach $|r| \approx 0.6$, a
+direct signature of the asymmetry created by the pistol outcome. In
+\textbf{normal} rounds the same deltas remain at the top but with a
+more moderate amplitude ($|r| \approx 0.3$). Across all three regimes
+we observe a clear separation between the two feature families:
+parser-derived economic variables carry most of the signal while
+HLTV statistics (rating, ADR, round-win~\%, \ldots) remain
+systematically at a lower correlation level.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth]{report_pearson_combined.png}
+\caption{Pearson correlations between each CT~$-$~T delta and
+\texttt{round\_winner}, by regime. Blue: positive correlation
+(feature pushes toward a CT win); orange: negative.}
+\label{fig:correlations}
+\end{figure}
+
+% =============================================================================
