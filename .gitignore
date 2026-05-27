@@ -34,7 +34,7 @@ data/
 # Generated PowerPoint or other large binaries
 *.pptx
 
-# Compiled LaTeX artefacts (only main.tex and sections/ are tracked)
+# Compiled LaTeX artefacts (the PDF is committed so readers can see it without compiling)
 report/*.aux
 report/*.log
 report/*.out
@@ -42,7 +42,6 @@ report/*.toc
 report/*.synctex.gz
 report/*.fls
 report/*.fdb_latexmk
-report/main.pdf
 
 # Logs
 *.log

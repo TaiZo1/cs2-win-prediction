@@ -64,7 +64,7 @@ Team statistics are collected along a 4-dimensional grid:
 
 For every match-map, the correct opponent tier is read from HLTV's own `matches.json`. From the resulting grid we extract the main indicators (rating, ADR, round-win %, flash-assists, pistol-win %, round-2 conversion, …).
 
-**Leakage protection**: statistics scraped for a match played on day `D` are limited to `endDate = D - 1`. A team never appears in its own pre-match statistics.
+**Leakage protection**: statistics scraped for a match played on day `D` are limited to `endDate = D - 1`, so the match we are predicting is never included in the historical stats fed to the model.
 
 **Tier propagation**: HLTV doesn't always publish every combination. Top 5 data fills Top 10 if missing, which fills Top 20, and so on down to Top 50. The fallback never goes the other way around (filling Top 5 with Top 20 data would paint a falsely optimistic picture).
 

@@ -13,9 +13,7 @@ from pathlib import Path
 from demoparser2 import DemoParser
 from awpy import Demo
 
-# ============================================
 # WEAPON & ITEM DEFINITIONS
-# ============================================
 
 PISTOLS = {
     "Glock-18",
@@ -147,9 +145,7 @@ ALL_WEAPON_DICT = {
 LOSS_BONUS = {0: 1400, 1: 1900, 2: 2400, 3: 2900, 4: 3400}
 
 
-# ============================================
 # HELPER FUNCTIONS
-# ============================================
 
 
 def count_weapon(snapshot_data, weapon):
@@ -241,9 +237,7 @@ def build_grenade_df(demawpy, start_tick, end_tick):
     )
 
 
-# ============================================
 # MAIN EXTRACTION FUNCTION
-# ============================================
 
 
 def extract_round_features(
@@ -285,16 +279,12 @@ def extract_round_features(
         else None
     )
 
-    # ============================================
     # NAMES
-    # ============================================
 
     features["ct_team_name"] = ct_team_name
     features["t_team_name"] = t_team_name
 
-    # ============================================
     # ECONOMY
-    # ============================================
 
     features["ct_money_total"] = (
         ct_start_data["balance"].sum() + ct_start_data["current_equip_value"].sum()
@@ -314,9 +304,7 @@ def extract_round_features(
 
     features["ct_defuser_count"] = (ct_snapshot_data["has_defuser"]).sum()
 
-    # ============================================
     # ARMEMENT
-    # ============================================
 
     features["ct_awp_count"] = count_weapon(ct_snapshot_data, "AWP")
     features["t_awp_count"] = count_weapon(t_snapshot_data, "AWP")
@@ -335,9 +323,7 @@ def extract_round_features(
 
     features["ct_ak_count"] = count_weapon(ct_snapshot_data, "AK-47")
 
-    # ============================================
     # UTILITY
-    # ============================================
 
     features["ct_smoke_count"] = count_items(
         ct_snapshot_data, ct_grenade_df, "Smoke Grenade"
@@ -387,9 +373,7 @@ def extract_round_features(
         * ITEM_PRICES["Decoy Grenade"]
     )
 
-    # ============================================
     # EQUIPMENT VALUE
-    # ============================================
 
     features["ct_equipment_value"] = (
         features["ct_armor_count"] * ITEM_PRICES["Kevlar Vest"]
@@ -406,9 +390,7 @@ def extract_round_features(
         + count_all_weapon(t_snapshot_data)
     )
 
-    # ============================================
     # CONTEXT
-    # ============================================
 
     features["round_number"] = round_number
     features["ct_score"] = ct_score
@@ -440,9 +422,7 @@ def extract_round_features(
     features["map_name"] = map_name
     features["is_overtime"] = 1 if rn > 24 else 0
 
-    # ============================================
     # EQUIPMENT SAVED (previous round)
-    # ============================================
 
     if previous_last_tick_data is not None and not is_side_switch:
         features["ct_survivors_previous"] = previous_last_tick_data[
@@ -463,18 +443,14 @@ def extract_round_features(
         features["ct_equipment_saved_value"] = 0
         features["t_equipment_saved_value"] = 0
 
-    # ============================================
     # TARGET
-    # ============================================
 
     features["round_winner"] = round_winner
 
     return features
 
 
-# ============================================
 # DEMO PARSING FUNCTION
-# ============================================
 
 
 def parse_demo(demo_path):
