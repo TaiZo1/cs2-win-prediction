@@ -2,7 +2,7 @@
 
 A data pipeline + exploratory analysis + classical modeling project, built end-to-end on professional CS2 matches. The goal: from the freeze-time state of a round (equipment, money, score, momentum, team-level statistics), predict which side will win.
 
-> 1,511 Tier-1 matches • ~32,000 rounds • 2025–2026 tournaments
+> 1,511 maps from ~650 Tier-1 matches • 32,223 rounds • 23 tournaments (2025–2026)
 
 ---
 
@@ -73,6 +73,8 @@ For every match-map, the correct opponent tier is read from HLTV's own `matches.
 2. **cross-window**: fall back to 90d then 6months if 30d is missing.
 3. **expanding median by date**: median over all past matches (no leakage).
 
+About 12–15 % of the HLTV cells are missing after the join (191,813 cells over the three splits). The first two steps fill 74 % of them, the expanding median the remaining 26 %.
+
 ---
 
 ## Splitting into three regimes
@@ -82,25 +84,29 @@ Pistol, post-pistol and normal rounds follow fundamentally different economic dy
 | Split | Rounds | Columns | CT win rate |
 |---|---|---|---|
 | `df_pistol`       |  2,945 |  70 | 50.5 % |
-| `df_post_pistol`  |  2,956 | 105 | 52.3 % |
-| `df_normal`       | 26,322 | 106 | 51.1 % |
+| `df_post_pistol`  |  2,956 | 103 | 52.3 % |
+| `df_normal`       | 26,322 | 104 | 51.1 % |
 
 ---
 
 ## Modeling and key findings
 
-Three logistic regressions are trained (one per regime), with a temporal train/test split grouped by match (the most recent 20 % of matches form the test set). Four nested feature configurations are compared (A = round-state only, B = +HLTV, C = +map, D = + quasi-target features for control).
+Three logistic regressions are trained (one per regime), with a temporal train/test split grouped by match (the most recent 20 % of maps form the test set: 302 maps from November 2025 onwards, i.e. 599 pistol, 601 post-pistol and 5,376 normal rounds). Four nested feature configurations are compared (A = round-state only, B = +HLTV, C = +map, D = + quasi-target features for control).
 
-| Regime       | Best AUC (test) | Best accuracy |
-|--------------|:----:|:----:|
-| Pistol       | ~0.56 | ~0.51 |
-| Normal       | ~0.71 | ~0.64 |
-| Post-pistol  | ~0.86 | ~0.78 |
+Test AUC (accuracy in parentheses), from `notebooks/03_modeling.ipynb`:
+
+| Configuration                 | Pistol | Normal | Post-pistol |
+|-------------------------------|:------:|:------:|:-----------:|
+| Baseline (majority class)     | 0.500 (50.3 %) | 0.500 (54.5 %) | 0.500 (55.1 %) |
+| A — round state only          | **0.532** (51.3 %) | 0.682 (61.8 %) | 0.858 (80.2 %) |
+| B — A + HLTV stats            | 0.521 (50.9 %) | 0.689 (62.5 %) | 0.858 (80.2 %) |
+| C — B + map                   | 0.513 (49.6 %) | **0.692** (62.6 %) | **0.860** (80.0 %) |
+| D — C + quasi-target (control) | 0.503 (50.8 %) | 0.690 (62.5 %) | 0.863 (80.4 %) |
 
 Three takeaways:
 1. **The round type is the strongest predictor of predictability.** Pistol rounds stay barely above chance; post-pistol rounds are almost deterministic.
-2. **The immediate round state is the dominant signal.** Adding HLTV stats or map identity gains at most +0.01 AUC over the round-state baseline on normal and post-pistol rounds.
-3. **PCA does not yield a useful dimensionality reduction.** 10–12 components are needed to capture 80 % of inertia across the three regimes, so we keep the full feature set for the regression.
+2. **The immediate round state is the dominant signal.** Adding HLTV stats or map identity gains at most +0.01 AUC over the round-state baseline on normal and post-pistol rounds. On pistol rounds they even lower it, but with ~600 test rounds (AUC standard error ≈ 0.02) the pistol differences are within noise.
+3. **PCA does not yield a useful dimensionality reduction.** 12 components (out of 28 to 43 input features) are needed to capture 80 % of inertia in every regime, so we keep the full feature set for the regression.
 
 ---
 

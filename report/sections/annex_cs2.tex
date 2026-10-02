@@ -342,13 +342,13 @@ value (e.g. 1.00 for the rating).
 \toprule
 \textbf{Step} & \textbf{Mechanism} & \textbf{NaN filled} & \textbf{Remaining} \\
 \midrule
-Initial               & Empty cells after the join                       & ---       & 204{,}000 (13.5~\%) \\
-1.~\texttt{map $\to$ global} & All-maps stat when the map-specific is missing & $-$106{,}000 & 98{,}000 \\
-2.~cross-window       & 30\,d $\to$ 90\,d $\to$ 6\,months if empty       & $-$33{,}000  & 65{,}000 \\
-3.~expanding median   & Median per column over past values               & $-$65{,}000  & 0 \\
+Initial               & Empty cells after the join                       & ---       & 191{,}813 (12.7~\%) \\
+1.~\texttt{map $\to$ global} & All-maps stat when the map-specific is missing & $-$61{,}122 & 130{,}691 \\
+2.~cross-window       & 30\,d $\to$ 90\,d $\to$ 6\,months if empty       & $-$80{,}420  & 50{,}271 \\
+3.~expanding median   & Median per column over past values               & $-$50{,}271  & 0 \\
 \bottomrule
 \end{tabular}
-\caption{Progressive HLTV NaN filling.}
+\caption{Progressive HLTV NaN filling (totals over the three splits).}
 \label{tab:nan_fill}
 \end{table}
 
